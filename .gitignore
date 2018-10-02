@@ -8,6 +8,6 @@
 *.user
 *.pfx
 *.exe
-/Bus Fare Calculator/bin/Debug/*
-/Bus Fare Calculator/obj/Debug/*
+/Bus Fare Calculator/bin/*
+/Bus Fare Calculator/obj/*
 /.vs/*
