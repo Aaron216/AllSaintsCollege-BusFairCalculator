@@ -1,0 +1,13 @@
+*.dtbcahhe
+*.suo
+*.lock
+*.ide
+*.ide-shm
+*.ide-wal
+*.config
+*.user
+*.pfx
+*.exe
+/Bus Fare Calculator/bin/Debug/*
+/Bus Fare Calculator/obj/Debug/*
+/.vs/*
