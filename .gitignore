@@ -4,7 +4,6 @@
 *.ide
 *.ide-shm
 *.ide-wal
-*.config
 *.user
 *.pfx
 *.exe
