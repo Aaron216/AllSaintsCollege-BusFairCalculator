@@ -44,8 +44,8 @@ Public Class Location
 		End Get
 		Set(value As Double)
 			If Math.Abs(value) > MaxLongitude Then
-				Throw New ArgumentOutOfRangeException("Latitude must be a real number between -90 and +90 degrees.")
-			Else
+                Throw New ArgumentOutOfRangeException("Longitude must be a real number between -90 and +90 degrees.")
+            Else
 				longitudeVal = value
 			End If
 		End Set
