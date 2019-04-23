@@ -3,7 +3,7 @@
 '	Ewing Ave, Bull Creek
 '	Bus Ticketing System
 '	Aaron Musgrave
-'	14/04/2018
+'	23/04/2019
 ' -------------------------
 '	Main Form
 ' -------------------------
@@ -19,25 +19,58 @@ Public Class FrmMain
     ' Open Tag List CSV File
     Private Sub BtnOpen_Click(sender As Object, e As EventArgs) Handles BtnOpen.Click
         ' Declare Variables
+        Dim numErrors As Integer
         Dim fileName As String
         Dim inputRows As List(Of String())
 
+        Dim errorTags As New List(Of Tag)
+        Dim errorMessage As String
+
         ' Browse to input file
-        OpenFileDialog.ShowDialog()
-        fileName = OpenFileDialog.FileName
-        ' Set Wait Cursor and reset progress bar
-        Cursor = Cursors.WaitCursor
-        ' Load Input File
-        inputRows = FileIO.OpenCSV(fileName)
-        ' Process Into Tags
-        calculator.CreateTags(inputRows)
-        ' Populate Data View Grid
-        PopulateInput(calculator.TagList)
-        ' Enable Buttons
-        BtnProcess.Enabled = True
-        BtnClear.Enabled = True
-        ' Reset Cursor
-        Cursor = Cursors.Default
+        If OpenFileDialog.ShowDialog() = DialogResult.OK Then
+            fileName = OpenFileDialog.FileName
+
+            ' Set Wait Cursor
+            Cursor = Cursors.WaitCursor
+            ' Load Input File
+            inputRows = FileIO.OpenCSV(fileName)
+            ' Process Into Tags
+            calculator.CreateTags(inputRows)
+            ' Populate Data View Grid
+            PopulateInput(calculator.TagList)
+
+            ' Count errors
+            numErrors = 0
+            For Each currTag As Tag In calculator.TagList
+                If currTag.ErrorCode > 0 Then
+                    numErrors += 1
+                    errorTags.Add(currTag)
+                End If
+            Next
+
+            If numErrors > 0 Then
+                ' Display error message
+                errorMessage =
+                    numErrors & " records were found to contain errors." & vbNewLine &
+                    "Would you like to delete erroneous tags?"
+
+                ' Delete rows
+                If MessageBox.Show(errorMessage, "Errors in input data", MessageBoxButtons.YesNo, MessageBoxIcon.Information) = vbYes Then
+                    For Each currTag As Tag In errorTags
+                        calculator.TagList.Remove(currTag)
+                    Next
+
+                    ' Populate Data View Grid
+                    PopulateInput(calculator.TagList)
+                End If
+            End If
+
+            ' Enable Buttons
+            BtnProcess.Enabled = True
+            BtnClear.Enabled = True
+            ' Reset Cursor
+            Cursor = Cursors.Default
+        End If
     End Sub
 
     ' Save Outptut CSV File
@@ -259,28 +292,26 @@ Public Class FrmMain
             DgvOutput.Rows.Clear()
 
             ' Check for null input
-            If outputCards.Count > 0 Then
-                For Each currCard As Card In outputCards.Values
-                    ' Create new row
-                    DgvOutput.Rows.Add("")
-                    With DgvOutput.Rows(DgvOutput.Rows.Count - 1)
-                        .Cells("colOutDebtorID").Value = currCard.DebtorID
-                        .Cells("colOutStudentID").Value = currCard.StudentID
-                        .Cells("colOutCardID").Value = currCard.CardID
-                        .Cells("colOutFirstName").Value = currCard.FirstName
-                        .Cells("colOutLastName").Value = currCard.LastName
-                        .Cells("colOutTotal").Value = currCard.GetTotalNoRides
-                        .Cells("colOutFare").Value = currCard.TotalFare
-                        .Cells("colOutRoutes").Value = currCard.GetRoutes
-                        .Cells("colOutAM").Value = currCard.GetNoAMRides
-                        .Cells("colOutPM").Value = currCard.GetNoPMRides
-                    End With
-                Next
+            For Each currCard As Card In outputCards.Values
+                ' Create new row
+                DgvOutput.Rows.Add("")
+                With DgvOutput.Rows(DgvOutput.Rows.Count - 1)
+                    .Cells("colOutDebtorID").Value = currCard.DebtorID
+                    .Cells("colOutStudentID").Value = currCard.StudentID
+                    .Cells("colOutCardID").Value = currCard.CardID
+                    .Cells("colOutFirstName").Value = currCard.FirstName
+                    .Cells("colOutLastName").Value = currCard.LastName
+                    .Cells("colOutTotal").Value = currCard.GetTotalNoRides
+                    .Cells("colOutFare").Value = currCard.TotalFare
+                    .Cells("colOutRoutes").Value = currCard.GetRoutes
+                    .Cells("colOutAM").Value = currCard.GetNoAMRides
+                    .Cells("colOutPM").Value = currCard.GetNoPMRides
+                End With
+            Next
 
-                ' Sort Table
-                DgvOutput.Sort(DgvOutput.Columns.Item("colOutLastName"), System.ComponentModel.ListSortDirection.Ascending)
-                DgvOutput.CurrentCell = DgvOutput.Rows(0).Cells(0)
-            End If
+            ' Sort Table
+            DgvOutput.Sort(DgvOutput.Columns.Item("colOutLastName"), System.ComponentModel.ListSortDirection.Ascending)
+            DgvOutput.CurrentCell = DgvOutput.Rows(0).Cells(0)
         Catch ex As Exception
             MessageBox.Show(("Error populating output table: " & ex.Message), "Processing Error")
         End Try
@@ -341,12 +372,6 @@ Public Class FrmMain
     Shared Sub SetProgress(value As Integer)
         If value <= FrmMain.ProgressBar.Maximum Then
             FrmMain.ProgressBar.Value = value
-        End If
-    End Sub
-
-    Shared Sub IncreaseProgress(value As Integer)
-        If (FrmMain.ProgressBar.Value + value) < FrmMain.ProgressBar.Maximum Then
-            FrmMain.ProgressBar.Value += value
         End If
     End Sub
 End Class

@@ -3,7 +3,7 @@
 '	Ewing Ave, Bull Creek
 '	Bus Ticketing System
 '	Aaron Musgrave
-'	14/04/2018
+'	23/04/2019
 ' -------------------------
 '	Calculator Class
 ' -------------------------
@@ -92,12 +92,12 @@ Public Class Calculator
             ' Check data has been loaded
             If TagList.Count > 0 Then
                 ' Create Cards
-                CreateCards(TagList)
-                FrmMain.SetProgress(300)
+                CreateCards()
+                FrmMain.SetProgress(100)
 
                 ' Create Rides and Calculate Fare
                 CalcRides(fareIsCapped)
-                FrmMain.SetProgress(400)
+                FrmMain.SetProgress(200)
             End If
         Catch ex As OperationCanceledException
             ' Stop work and pass exception upwards
@@ -108,6 +108,7 @@ Public Class Calculator
     End Sub
 
     Public Sub Clear()
+        TagList.Clear()
         CardMap.Clear()
     End Sub
 
@@ -145,24 +146,23 @@ Public Class Calculator
     ' ----------------
 
     ' Create Card Objects from Tag List
-    Private Sub CreateCards(tagList As List(Of Tag))
+    Private Sub CreateCards()
         ' Declare Variables
-        Dim progressIncrement As Integer = 100 / tagList.Count
+        Dim progress As Double = 0.0
+        Dim progressIncrement As Double = 100.0 / TagList.Count
         Dim synergetic As SynergeticLink = New SynergeticLink
         Dim studentRow As DataRow
-        Dim connectedToSynergetic As Boolean = False
 
         Try
             ' Connect to synergetic
             synergetic.Open()
-            connectedToSynergetic = True
         Catch ex As Exception
             ' Failed to connect to synergetic
             MessageBox.Show("Failed to connect to Synergetic.", "Warning")
         End Try
 
         Try
-            For Each currTag As Tag In tagList
+            For Each currTag As Tag In TagList
                 Dim currCard As New Card
                 If CardMap.ContainsKey(currTag.CardID) Then
                     ' Card already exists
@@ -185,7 +185,8 @@ Public Class Calculator
                     CardMap.Add(currCard.CardID, currCard)
                 End If
 
-                FrmMain.IncreaseProgress(progressIncrement)
+                progress += progressIncrement
+                FrmMain.SetProgress(progress)
             Next
         Catch ex As Exception
             MessageBox.Show(("Error creating card objects: " & ex.Message), "Processing Error")
@@ -198,7 +199,8 @@ Public Class Calculator
     ' Calculate Rides and Fares from Tag List
     Private Sub CalcRides(fareIsCapped As Boolean)
         ' Declare Variables
-        Dim progressIncrement As Integer = 100 / CardMap.Count
+        Dim progress As Double = 100.0
+        Dim progressIncrement As Double = 100.0 / CardMap.Count
         Dim cardIDArray() As String = CardMap.Keys.ToArray
         Dim currCard As Card
 
@@ -208,7 +210,9 @@ Public Class Calculator
                 currCard.CreateRides()
                 currCard.CalcFare(RideFare, FareCap, fareIsCapped)
                 CardMap.Item(currCard.CardID) = currCard
-                FrmMain.IncreaseProgress(progressIncrement)
+
+                progress += progressIncrement
+                FrmMain.SetProgress(progress)
             Next
         Catch ex As Exception
             MessageBox.Show(("Error calculating ride fares: " & ex.Message), "Processing Error")
@@ -220,25 +224,9 @@ Public Class Calculator
     '	PRIVATE FUNCTIONS
     ' ---------------------
 
-    ' Create Tag List from Input Table
-    Private Function CreateTags(inputTable As DataGridView) As List(Of Tag)
-        ' Declare Variables
-        Dim progressIncrement As Integer = 100 / inputTable.Rows.Count
-        Dim tagList As New List(Of Tag)
-
-        For Each currRow As DataGridViewRow In inputTable.Rows
-            Dim currTag As New Tag
-            currTag.FromRow(currRow)
-            tagList.Add(currTag)
-            FrmMain.IncreaseProgress(progressIncrement)
-        Next
-
-        Return tagList
-    End Function
-
     Private Function ConvertToNumber(inString As String, name As String) As Double
         ' Declare Variables
-        Dim number As Double = 0.0
+        Dim number As Double
 
         ' Remove dollar sign
         inString = inString.TrimStart("$")

@@ -3,7 +3,7 @@
 '	Ewing Ave, Bull Creek
 '	Bus Ticketing System
 '	Aaron Musgrave
-'	30/03/2018
+'	23/04/2019
 ' -------------------------
 '	Tag Object Class
 ' -------------------------
@@ -158,72 +158,6 @@ Public Class Tag
     ' ---------------
     '	SUB MODULES
     ' ---------------
-
-    ' NOT USED
-    Private Sub FromRowOld(inRow As DataGridViewRow)
-        ' Declare Variables
-        Dim cellCollection As DataGridViewCellCollection = inRow.Cells
-        Dim noCells As Integer = cellCollection.Count
-        Dim parts(noCells) As String
-        Try
-            ' Convert each cell to part in array of strings
-            For ii As Integer = 0 To noCells - 1
-                parts(ii) = cellCollection.Item(ii).Value.ToString
-            Next
-        Catch ex As Exception
-            MessageBox.Show(("Error creating tag list: " & ex.Message), "Processing Error")
-        End Try
-
-        ' Call from string
-        FromString(parts)
-    End Sub
-
-    Public Sub FromRow(inRow As DataGridViewRow)
-        ' Declare Variables
-        Dim cells As DataGridViewCellCollection = inRow.Cells
-        Try
-            AttID = Integer.Parse(cells("colInTagID").Value)
-
-            ' Check for driver's card
-            If cells("colInFirstName").Value.Contains("DRIVER") And cells("colInFirstName").Value.contains("CARD") Then
-                FirstName = cells("colInEventName").Value
-                LastName = "Driver"
-            Else
-                FirstName = cells("colInFirstName").Value
-                LastName = cells("colInLastName").Value
-            End If
-
-            CardID = cells("colInCardID").Value
-
-            ' Check route name
-            Route = cells("colInEventName").Value
-            If Route.EndsWith(" Bus") Then
-                Route = Route.Substring(0, Route.Length - 4)
-            End If
-
-            Location.AddDetails(cells("colInLatitude").Value, cells("colInLongitude").Value)
-            DateAndTime = Date.Parse(cells("colInDateTime").Value)
-        Catch ex As Exception
-            Dim message As String
-            Dim buttons As MessageBoxButtons
-            Dim response As DialogResult
-
-            message =
-                "Error creating tag: " & ex.Message & vbNewLine &
-                vbTab & "AttID: " & cells("colInTagID").Value & vbNewLine &
-                vbTab & "Name: " & cells("colInFirstName").Value & " " & cells("colInLastName").Value & vbNewLine &
-                vbTab & "Card ID: " & cells("colInCardID").Value & vbNewLine &
-                vbTab & "Route: " & cells("colInEventName").Value & vbNewLine &
-                vbTab & "Location: " & cells("colInLatitude").Value & ", " & cells("colInLongitude").Value & vbNewLine &
-                vbTab & "Time and date: " & cells("colInDateTime").Value
-            buttons = vbOKCancel
-            response = MessageBox.Show(message, "Processing Error", buttons)
-
-            If response = vbCancel Then
-                Throw New OperationCanceledException
-            End If
-        End Try
-    End Sub
 
     Public Sub FromString(inParts As String())
         ' inParts Format

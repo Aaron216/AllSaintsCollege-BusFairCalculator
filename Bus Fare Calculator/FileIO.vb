@@ -3,7 +3,7 @@
 '	Ewing Ave, Bull Creek
 '	Bus Ticketing System
 '	Aaron Musgrave
-'	14/04/2018
+'	23/04/2019
 ' -------------------------
 '	File Open and Save
 ' -------------------------
@@ -142,7 +142,7 @@ Public Class FileIO
         ' Declare Variables
         Dim TransactionDate As String = Date.Today.ToString("dd/MM/yyyy")
         Dim utf8WithoutBom As New System.Text.UTF8Encoding(False)
-        Dim currLine As String = ""
+        Dim currLine As String
 
         Try
             If fileName IsNot String.Empty Then

@@ -508,7 +508,7 @@ Partial Class FrmMain
         'ProgressBar
         '
         Me.ProgressBar.Location = New System.Drawing.Point(93, 358)
-        Me.ProgressBar.Maximum = 500
+        Me.ProgressBar.Maximum = 300
         Me.ProgressBar.Name = "ProgressBar"
         Me.ProgressBar.Size = New System.Drawing.Size(419, 23)
         Me.ProgressBar.Step = 1
