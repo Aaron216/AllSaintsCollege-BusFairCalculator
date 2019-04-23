@@ -20,13 +20,19 @@ Public Class FrmMain
     Private Sub BtnOpen_Click(sender As Object, e As EventArgs) Handles BtnOpen.Click
         ' Declare Variables
         Dim fileName As String
+        Dim inputRows As List(Of String())
+
         ' Browse to input file
         OpenFileDialog.ShowDialog()
         fileName = OpenFileDialog.FileName
         ' Set Wait Cursor and reset progress bar
         Cursor = Cursors.WaitCursor
         ' Load Input File
-        FileIO.OpenCSV(fileName, DgvInput)
+        inputRows = FileIO.OpenCSV(fileName)
+        ' Process Into Tags
+        calculator.CreateTags(inputRows)
+        ' Populate Data View Grid
+        PopulateInput(calculator.TagList)
         ' Enable Buttons
         BtnProcess.Enabled = True
         BtnClear.Enabled = True
@@ -74,7 +80,7 @@ Public Class FrmMain
             Cursor = Cursors.WaitCursor
             Try
                 ' Process Data
-                calculator.Process(DgvInput, (CbxFareCap.SelectedItem = CbxFareCap.Items(1)))
+                calculator.Process(CbxFareCap.SelectedItem = CbxFareCap.Items(1))
                 ' Populate Output
                 PopulateOutput(calculator.CardMap)
                 SetProgress(ProgressBar.Maximum)
@@ -212,11 +218,40 @@ Public Class FrmMain
     '	SUB MODULES
     ' ---------------
 
+    ' Populate Input Table
+    Private Sub PopulateInput(tagList As List(Of Tag))
+        Try
+            ' Clear Input Table
+            DgvInput.Rows.Clear()
+
+            For Each currTag As Tag In tagList
+                DgvInput.Rows.Add("")
+                With DgvInput.Rows(DgvInput.Rows.Count - 1)
+                    .Cells("colInTagID").Value = currTag.AttID
+                    .Cells("colInDeviceID").Value = currTag.DeviceID
+                    .Cells("colInFirstName").Value = currTag.FirstName
+                    .Cells("colInLastName").Value = currTag.LastName
+                    .Cells("colInCardID").Value = currTag.CardID
+                    .Cells("colInEventID").Value = currTag.EventID
+                    .Cells("colInEventName").Value = currTag.Route
+                    .Cells("colInLatitude").Value = currTag.Location.Latitude
+                    .Cells("colInLongitude").Value = currTag.Location.Longitude
+                    .Cells("colInDateTime").Value = currTag.DateAndTime
+
+                    If currTag.ErrorCode > 0 Then
+                        .DefaultCellStyle.BackColor = Color.Red
+                    Else
+                        .DefaultCellStyle.BackColor = Color.White
+                    End If
+                End With
+            Next
+        Catch ex As Exception
+
+        End Try
+    End Sub
+
     ' Populate Output Table
     Private Sub PopulateOutput(outputCards As Dictionary(Of String, Card))
-        ' Declare Variables
-        Dim progressIncrement As Integer = 0
-
         Try
             ' Clear Output Table
             DgvOutput.Rows.Clear()

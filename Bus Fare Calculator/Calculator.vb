@@ -12,12 +12,15 @@ Public Class Calculator
     ' Declare Feilds
     Private rideFareVal As Double
     Private fareCapVal As Double
+    Private tagListVal As List(Of Tag)
     Private cardMapVal As Dictionary(Of String, Card)
+
 
     ' Constructor
     Public Sub New()
         rideFareVal = 0.0
         fareCapVal = 0.0
+        tagListVal = New List(Of Tag)
         cardMapVal = New Dictionary(Of String, Card)
     End Sub
 
@@ -52,6 +55,15 @@ Public Class Calculator
         End Set
     End Property
 
+    Public Property TagList As List(Of Tag)
+        Get
+            Return tagListVal
+        End Get
+        Set(value As List(Of Tag))
+            tagListVal = value
+        End Set
+    End Property
+
     Public Property CardMap As Dictionary(Of String, Card)
         Get
             Return cardMapVal
@@ -66,21 +78,21 @@ Public Class Calculator
     '	SUB MODULES
     ' ---------------
 
-    Public Sub Process(inputTable As DataGridView, fareIsCapped As Boolean)
-        ' Create Variables
-        Dim tagList As New List(Of Tag)
+    ' Create Tags from Input Strings
+    Public Sub CreateTags(inputRows As List(Of String()))
+        For Each currRow As String() In inputRows
+            Dim currTag As New Tag
+            currTag.FromString(currRow)
+            TagList.Add(currTag)
+        Next
+    End Sub
 
+    Public Sub Process(fareIsCapped As Boolean)
         Try
             ' Check data has been loaded
-            If inputTable.Rows.Count > 0 Then
-                FrmMain.SetProgress(100)
-
-                ' Create Tags
-                tagList = CreateTags(inputTable)
-                FrmMain.SetProgress(200)
-
+            If TagList.Count > 0 Then
                 ' Create Cards
-                CreateCards(tagList)
+                CreateCards(TagList)
                 FrmMain.SetProgress(300)
 
                 ' Create Rides and Calculate Fare
@@ -114,7 +126,7 @@ Public Class Calculator
 
     ' Filter and Search
     Public Function FilterAndSearch(filterObj As Object, search As String) As Dictionary(Of String, Card)
-        Dim result As New Dictionary(Of String, Card)
+        Dim result As Dictionary(Of String, Card)
 
         ' Filter
         result = FilterCards(filterObj)
@@ -188,7 +200,7 @@ Public Class Calculator
         ' Declare Variables
         Dim progressIncrement As Integer = 100 / CardMap.Count
         Dim cardIDArray() As String = CardMap.Keys.ToArray
-        Dim currCard As New Card
+        Dim currCard As Card
 
         Try
             For ii As Integer = 0 To cardIDArray.Length - 1

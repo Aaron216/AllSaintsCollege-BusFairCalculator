@@ -49,7 +49,7 @@ Public Class FileIO
         End Try
     End Sub
 
-    Shared Function OpenCSV(fileName As String)
+    Shared Function OpenCSV(fileName As String) As List(Of String())
         ' Check fileName
         If fileName Is String.Empty Then
             Throw New ArgumentNullException("Filename cannot be empty.")
