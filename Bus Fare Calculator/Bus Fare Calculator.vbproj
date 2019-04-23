@@ -141,6 +141,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="Ride.vb" />
+    <Compile Include="Style.vb" />
     <Compile Include="SynergeticLink.vb" />
     <Compile Include="Tag.vb" />
   </ItemGroup>

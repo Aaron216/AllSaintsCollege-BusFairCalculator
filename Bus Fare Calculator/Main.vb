@@ -239,8 +239,10 @@ Public Class FrmMain
                     .Cells("colInDateTime").Value = currTag.DateAndTime
 
                     If currTag.ErrorCode > 0 Then
-                        .DefaultCellStyle.BackColor = Color.Red
+                        .DefaultCellStyle.ForeColor = Style.Colours.ErrorText
+                        .DefaultCellStyle.BackColor = Style.Colours.ErrorBackground
                     Else
+                        .DefaultCellStyle.ForeColor = Color.Black
                         .DefaultCellStyle.BackColor = Color.White
                     End If
                 End With
